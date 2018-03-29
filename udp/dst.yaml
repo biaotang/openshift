@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    app: dst
+  name: dst
+spec:
+  replicas: 1
+  selector:
+    app: dst
+  template:
+    metadata:
+      labels:
+        app: dst
+    spec:
+      containers:
+      - image: registry.example.com:5000/openshift-udp-test
+        imagePullPolicy: Always
+        name: dst
+        ports:
+          - protocol: UDP
+            hostPort: 8070
+            containerPort: 8070
+        command:
+        - socat
+        - -v
+        - udp-l:8070,fork
+        - exec:'/bin/cat'
+      hostNetwork: true
+      nodeSelector:
+        dst: "true"
+  triggers:
+  - type: ConfigChange
